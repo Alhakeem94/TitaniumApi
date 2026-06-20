@@ -9,6 +9,9 @@ namespace BankingApi.Models
     public class CostumerModel
     {
 
+        public int Id { get; set; }
+
+
         [Required(ErrorMessage = "Name is a mandatory field")]
         [StringLength(100,ErrorMessage = "Name should be less than 100 characters")]
         public string CustomerName { get; set; }

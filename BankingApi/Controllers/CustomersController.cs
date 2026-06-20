@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BankingApi.Data;
 using BankingApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,30 +13,35 @@ namespace BankingApi.Controllers
     public class CustomersController : ControllerBase
     {
 
-        [HttpGet("HelloWorld")]
-        public ActionResult<string> GetHelloWorld()
+        private readonly ApplicationDbContext _Db;
+        public CustomersController(ApplicationDbContext Db)
         {
-            return Ok("Hello World!");  // Ok = تدلل
+            _Db = Db;
         }
-
-
-        [HttpGet("GetStudentName")]
-        public ActionResult<string> GetStudentNameFromList([FromQuery] string Name, [FromQuery] int age)
-        {
-            return Ok($"Hello {Name} whos age is {age}");
-        }
-
 
 
         [HttpPost("AddNewCustomer")]
-        public ActionResult<string> AddNewCustomerEndPoint([FromBody] CostumerModel costumer)
+        public ActionResult<string> AddCustomer([FromBody]CostumerModel NewCustomer)
         {
-            var TrimmedName = costumer.CustomerName.Trim();
-            return Ok(costumer);  
+            if (ModelState.IsValid)
+            {
+                var DoesCustomerExist = _Db.CustomersTable.FirstOrDefault(a => a.CustomerNationalId == NewCustomer.CustomerNationalId);
+                if (DoesCustomerExist is null)
+                {
+                    _Db.CustomersTable.Add(NewCustomer);
+                    _Db.SaveChanges();
+                    return Ok("Customer Added Successfully");
+                }
+                else
+                {
+                    return BadRequest("Customer Already Exists");
+                }
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
-
-
-
 
 
 
