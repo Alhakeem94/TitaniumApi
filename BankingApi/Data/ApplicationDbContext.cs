@@ -12,7 +12,9 @@ namespace BankingApi.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<CostumerModel> CustomersTable { get; set; }
-        //           DataSource      DestinationName
+
+
+
 
 
     }

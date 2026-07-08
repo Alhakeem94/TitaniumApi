@@ -13,7 +13,7 @@ namespace BankingApi.Models
 
 
         [Required(ErrorMessage = "Name is a mandatory field")]
-        [StringLength(100,ErrorMessage = "Name should be less than 100 characters")]
+        [StringLength(100, ErrorMessage = "Name should be less than 100 characters")]
         public string CustomerName { get; set; }
 
         [Required(ErrorMessage = "Date of Birth is a mandatory field")]
@@ -29,9 +29,15 @@ namespace BankingApi.Models
 
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string CustomerEmail { get; set; }
-        
+
         [Required(ErrorMessage = "Phone Number is a mandatory field")]
         public string CustomerPhoenNumber { get; set; }
+
+        [Required(ErrorMessage = "Address is a mandatory field")]
+        [StringLength(200, ErrorMessage = "Address should be less than 200 characters")]
+        public string Adress { get; set; }
+
+
 
     }
 }

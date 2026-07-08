@@ -23,6 +23,11 @@ namespace BankingApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Adress")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CustomerDateOfBirth")
                         .HasColumnType("TEXT");
 
