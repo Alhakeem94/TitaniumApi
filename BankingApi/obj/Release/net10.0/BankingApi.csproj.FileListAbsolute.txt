@@ -142,7 +142,6 @@ C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\staticwebassets.development.json
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\staticwebassets.build.endpoints.json
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\swae.build.ex.cache
-C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\staticwebassets.upToDateCheck.txt
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\BankingApi.csproj.Up2Date
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\BankingApi.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\refint\BankingApi.dll
@@ -187,3 +186,4 @@ C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Release\net10
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Release\net10.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Release\net10.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Release\net10.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Release\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

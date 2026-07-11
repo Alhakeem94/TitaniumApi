@@ -7,6 +7,7 @@ C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\BankingApi.pdb
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\Azure.Core.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\Azure.Identity.dll
+C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\Microsoft.AspNetCore.OpenApi.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\obj\Release\net10.0\PubTmp\Out\Microsoft.Bcl.Cryptography.dll

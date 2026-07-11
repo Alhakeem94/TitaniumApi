@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <parameters>
-  <parameter name="IIS Web Application Name" description="" value="alhakeem0010-001-site1" tags="IisApp">
+  <parameter name="IIS Web Application Name" description="" value="site78989" tags="IisApp">
     <parameterEntry kind="ProviderPath" scope="IisApp" match="^C:\\Users\\Administrator\\Desktop\\Titanuem\ API\ project\\BankingApi\\obj\\Release\\net10\.0\\PubTmp\\Out\\$" />
-  </parameter>
-  <parameter name="BankingApi.Data.ApplicationDbContext" description="" value="Data Source=SQL5101.site4now.net;Initial Catalog=db_acb406_titanuem;User Id=db_acb406_titanuem_admin;Password=Admin123;Encrypt=True;TrustServerCertificate=True;" tags="dbfullsql">
-    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^C:\\Users\\Administrator\\Desktop\\Titanuem\ API\ project\\BankingApi\\obj\\Release\\net10\.0\\PubTmp\\EFSQLScripts\\BankingApi\.Data\.ApplicationDbContext\.sql$" />
   </parameter>
 </parameters>

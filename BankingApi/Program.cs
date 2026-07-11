@@ -1,5 +1,6 @@
 using System.Text;
 using BankingApi.Data;
+using BankingApi.Shared.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -14,7 +15,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+        policy.SetIsOriginAllowed(origin =>
+              {
+                  var host = new Uri(origin).Host;
+                  return host == "localhost" || host.EndsWith(".vercel.app");
+              })
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -22,7 +27,13 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+
+
+builder.Services.AddScoped<IAuth,AuthRepo>();
+
 
 
 
@@ -48,6 +59,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -55,8 +70,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
 app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.MapControllers();
 app.Run();
 
