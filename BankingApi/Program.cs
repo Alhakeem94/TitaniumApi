@@ -1,7 +1,9 @@
 using System.Text;
 using BankingApi.Data;
+using BankingApi.Models.Identity;
 using BankingApi.Shared.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +31,19 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddIdentityCore<AppUser>(option=>
+{
+    option.Password.RequiredLength = 10;
+    option.Password.RequireUppercase = true;
+    option.Password.RequireLowercase = true;
+    option.Password.RequiredUniqueChars = 8;
+    option.Password.RequireDigit = true;
+    option.Lockout.MaxFailedAccessAttempts = 5;
+    option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+})
+.AddRoles<ApplicationDbContext>()
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddSignInManager();
 
 
 
