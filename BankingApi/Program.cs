@@ -41,7 +41,7 @@ builder.Services.AddIdentityCore<AppUser>(option=>
     option.Lockout.MaxFailedAccessAttempts = 5;
     option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 })
-.AddRoles<ApplicationDbContext>()
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddSignInManager();
 

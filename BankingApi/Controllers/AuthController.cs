@@ -3,6 +3,7 @@ using BankingApi.Data;
 using BankingApi.Shared.Repositories;
 using BankingApi.Shared.requests;
 using BankingApi.Shared.responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 namespace BankingApi.Controllers
@@ -22,6 +23,7 @@ namespace BankingApi.Controllers
 
 
         [HttpPost("Login")]
+        [AllowAnonymous]
         public async Task<ActionResult<LoginResponse>> LoginFunc([FromBody] LoginRequest loginRequest)
         {
             if (ModelState.IsValid)
@@ -50,7 +52,7 @@ namespace BankingApi.Controllers
                         Token = null
                     });
                 }
-                
+
             }
             else
             {
@@ -61,9 +63,34 @@ namespace BankingApi.Controllers
                     Token = null
                 });
             }
-        }   
+        }
 
 
+
+        [HttpPost("Register")]
+        public async Task<ActionResult> Register([FromBody] RegisterationRequest RegRequest)
+        {
+            if (ModelState.IsValid)
+            {
+                var response = await auth.RegisterUser(RegRequest);
+                if (response.IsSuccessful)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(response);
+                }
+            }
+            else
+            {
+                return BadRequest(new GeneralResponse
+                {
+                    IsSuccessful = false,
+                    Message = "Invalid request data"
+                });
+            }
+        }
 
 
     }
