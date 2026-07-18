@@ -12,7 +12,7 @@ namespace BankingApi.Shared.requests
         [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string UserEmail { get; set; }
         
-        [Required(ErrorMessage = "National ID is a mandatory field")]
-        public double UserNId { get; set; }
+        [Required(ErrorMessage = "Password is a mandatory field")]
+        public string  Password{ get; set; }
     }
 }

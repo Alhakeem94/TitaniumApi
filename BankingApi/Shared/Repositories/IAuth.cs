@@ -14,8 +14,9 @@ namespace BankingApi.Shared.Repositories
 {
     public interface IAuth
     {
-        public string GenereateToken(string email, double nationalId);
+        public string GenereateToken(string email, string UserId, IList<string> userRoles);
         public Task<GeneralResponse> RegisterUser(RegisterationRequest request);    
+        public Task<LoginResponse> UserLogin(LoginRequest request);
 
     }
 
@@ -26,22 +27,30 @@ namespace BankingApi.Shared.Repositories
 
         private readonly IConfiguration _config;
         private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-
-        public AuthRepo(IConfiguration config, UserManager<AppUser> userManager)
+        public AuthRepo(IConfiguration config, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _config = config;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public string GenereateToken(string email, double nationalId)
+        public string GenereateToken(string email, string UserId, IList<string> userRoles)
         {
 
             var claims = new[]
             {
                 new Claim(System.Security.Claims.ClaimTypes.Email, email),
-                new Claim("NationalId", nationalId.ToString())
+                new Claim("UserId",UserId),
             };
+
+              foreach (var item in userRoles)
+              {
+                 claims.Append(new Claim(ClaimTypes.Role, item));
+              }  
+
+
 
             var SecretKey = _config.GetSection("Secrets:jwtSecret").Value;
             var credentials = new SigningCredentials(
@@ -79,14 +88,28 @@ namespace BankingApi.Shared.Repositories
                     RegisteredAt = DateTime.Now,
                 };
 
-               var Result = await _userManager.CreateAsync(RegisterUser, request.Password);
+                var Result = await _userManager.CreateAsync(RegisterUser, request.Password);
                 if (Result.Succeeded)
                 {
-                    return new GeneralResponse
+                    var RoleAddResult = await _userManager.AddToRoleAsync(RegisterUser, Seedings.RolesSeeds.Customer);
+                    if (RoleAddResult.Succeeded)
                     {
-                        IsSuccessful = true,
-                        Message = $"The User {request.Email} has been registered successfully"
-                    };
+                        return new GeneralResponse
+                        {
+                            IsSuccessful = true,
+                            Message = $"The User {request.Email} has been registered successfully"
+                        };
+                    }
+                    else
+                    {
+                        await _userManager.DeleteAsync(RegisterUser);
+                        var errors = string.Join(", ", RoleAddResult.Errors.Select(e => e.Description));
+                        return new GeneralResponse
+                        {
+                            IsSuccessful = false,
+                            Message = $"The User {request.Email} failed to register. Errors: {errors}"
+                        };
+                    }
                 }
                 else
                 {
@@ -106,6 +129,42 @@ namespace BankingApi.Shared.Repositories
                     IsSuccessful = false,
                     Message = $"The User {request.Email} failed to register, please check the validity of the data!"
                 };      
+            }
+        }
+
+        public async Task<LoginResponse> UserLogin(LoginRequest request)
+        {
+            var CheckIfUserEmailExists = await _userManager.FindByEmailAsync(request.UserEmail);
+            if (CheckIfUserEmailExists is null)
+            {
+                return new LoginResponse
+                {
+                    IsSuccess = false,
+                    Message = $"UserName or password is incorrect"
+                };
+            }
+            else
+            {
+                var CheckUserPassword = await _userManager.CheckPasswordAsync(CheckIfUserEmailExists, request.Password);
+                if (CheckUserPassword == true)
+                {
+                    var UserRoles  = await _userManager.GetRolesAsync(CheckIfUserEmailExists);
+                    return new LoginResponse
+                    {
+                        IsSuccess = true,
+                        Message = "Login success",
+                        Token = GenereateToken(CheckIfUserEmailExists.Email, CheckIfUserEmailExists.Id,UserRoles)
+                    };
+                }
+                else
+                {
+                    return new LoginResponse
+                    {
+                        IsSuccess = false,
+                        Message = $"UserName or password is incorrect",
+                        Token = null
+                    };
+                }
             }
         }
     }

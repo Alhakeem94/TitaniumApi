@@ -2,6 +2,7 @@ using System.Text;
 using BankingApi.Data;
 using BankingApi.Models.Identity;
 using BankingApi.Shared.Repositories;
+using BankingApi.Shared.Seedings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -74,10 +75,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
+
+
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+
+    foreach (var role in RolesSeeds.All)
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
 }
+
+
 
 if (app.Environment.IsDevelopment())
 {

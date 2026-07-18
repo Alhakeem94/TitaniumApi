@@ -28,39 +28,22 @@ namespace BankingApi.Controllers
         {
             if (ModelState.IsValid)
             {
-                var CheckIfUserExists = await _Db.CustomersTable.FirstOrDefaultAsync
-                                        (a => a.CustomerEmail == loginRequest.UserEmail
-                                         && a.CustomerNationalId == loginRequest.UserNId);
-
-                if (CheckIfUserExists != null)
+                var AuthServiceResponse = await auth.UserLogin(loginRequest);
+                if (AuthServiceResponse.IsSuccess == true)
                 {
-                    // Exists
-
-                    return Ok(new LoginResponse
-                    {
-                        IsSuccess = true,
-                        Message = "User Is Logged in",
-                        Token = auth.GenereateToken(loginRequest.UserEmail, loginRequest.UserNId),
-                    });
+                    return Ok(AuthServiceResponse);
                 }
                 else
                 {
-                    return BadRequest(new LoginResponse
-                    {
-                        IsSuccess = false,
-                        Message = "Invalid email or national ID",
-                        Token = null
-                    });
+                    return BadRequest(AuthServiceResponse);
                 }
-
             }
             else
             {
-                return BadRequest(new LoginResponse
+                return BadRequest(new GeneralResponse
                 {
-                    IsSuccess = false,
-                    Message = "Invalid request data",
-                    Token = null
+                    IsSuccessful = false,
+                    Message = "Invalid request data"
                 });
             }
         }
