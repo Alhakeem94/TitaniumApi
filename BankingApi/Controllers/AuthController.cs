@@ -76,5 +76,19 @@ namespace BankingApi.Controllers
         }
 
 
+        [HttpPost("Refresh")]
+        public async Task<ActionResult<LoginResponse>> RefreshToken([FromBody] string RefreshToken)
+        {
+            var Response = await auth.ReturnNewLoginResponseByRefreshToken(RefreshToken);
+            if (Response.IsSuccess)
+            {
+                return Ok(Response);
+            }
+            else
+            {
+                return BadRequest(Response);
+            }
+        }
+
     }
 }

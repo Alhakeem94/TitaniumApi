@@ -57,7 +57,7 @@ export default function AddCustomer() {
 
     try {
       const response = await fetch(
-        "http://localhost:5252/api/Customers/AddNewCustomer",
+        `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5252"}/api/Customers/AddNewCustomer`,
         {
           method: "POST",
           headers: {

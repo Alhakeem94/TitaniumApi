@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using BankingApi.Data;
 using BankingApi.Models.Identity;
 using BankingApi.Shared.requests;
 using BankingApi.Shared.responses;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BankingApi.Shared.Repositories
@@ -15,6 +18,8 @@ namespace BankingApi.Shared.Repositories
     public interface IAuth
     {
         public string GenereateToken(string email, string UserId, IList<string> userRoles);
+        public RefreshTokensModel GenerateRefreshToken(string UserId);
+        public Task<LoginResponse> ReturnNewLoginResponseByRefreshToken(string refreshToken);
         public Task<GeneralResponse> RegisterUser(RegisterationRequest request);    
         public Task<LoginResponse> UserLogin(LoginRequest request);
 
@@ -28,12 +33,24 @@ namespace BankingApi.Shared.Repositories
         private readonly IConfiguration _config;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-
-        public AuthRepo(IConfiguration config, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly ApplicationDbContext _db;
+        public AuthRepo(IConfiguration config, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext db)
         {
             _config = config;
             _userManager = userManager;
             _roleManager = roleManager;
+            _db = db;
+        }
+
+        public RefreshTokensModel GenerateRefreshToken(string UserId)
+        {
+            return new RefreshTokensModel
+            {
+                RefreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                UserId = UserId,
+                ExpiresAt = DateTime.Now.AddDays(7),
+                CreatedAt = DateTime.Now,
+            };
         }
 
         public string GenereateToken(string email, string UserId, IList<string> userRoles)
@@ -45,10 +62,10 @@ namespace BankingApi.Shared.Repositories
                 new Claim("UserId",UserId),
             };
 
-              foreach (var item in userRoles)
-              {
-                 claims.Append(new Claim(ClaimTypes.Role, item));
-              }  
+            foreach (var item in userRoles)
+            {
+                claims.Append(new Claim(ClaimTypes.Role, item));
+            }
 
 
 
@@ -62,7 +79,7 @@ namespace BankingApi.Shared.Repositories
                 issuer: "BankingApi",
                 audience: "BankingApiUsers",
                 claims: claims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: credentials
             );
 
@@ -119,8 +136,8 @@ namespace BankingApi.Shared.Repositories
                         IsSuccessful = false,
                         Message = $"The User {request.Email} failed to register. Errors: {errors}"
                     };
-               }
-               
+                }
+
             }
             else
             {
@@ -128,7 +145,61 @@ namespace BankingApi.Shared.Repositories
                 {
                     IsSuccessful = false,
                     Message = $"The User {request.Email} failed to register, please check the validity of the data!"
-                };      
+                };
+            }
+        }
+
+        public async Task<LoginResponse> ReturnNewLoginResponseByRefreshToken(string refreshToken)
+        {
+            var CheckIfRefreshTokenExists = await _db.RefreshTokenTable.Include(a => a.User)
+                                            .FirstOrDefaultAsync(a => a.RefreshToken == refreshToken);
+
+            if (CheckIfRefreshTokenExists is null)
+            {
+                return new LoginResponse
+                {
+                    IsSuccess = false,
+                    Message = $"Invalid refresh token"
+                };
+            }
+            else if (CheckIfRefreshTokenExists.IsActive)
+            {
+                return new LoginResponse
+                {
+                    IsSuccess = false,
+                    Message = $"Refresh token has been revoked or expired, please login again"
+                };
+            }
+            else
+            {
+                var UserRoles = await _userManager.GetRolesAsync(CheckIfRefreshTokenExists.User);
+                var Jwt = GenereateToken(CheckIfRefreshTokenExists.User.Email, CheckIfRefreshTokenExists.UserId, UserRoles);
+                var RefreshToken = GenerateRefreshToken(CheckIfRefreshTokenExists.UserId);
+
+                CheckIfRefreshTokenExists.RevokedAt = DateTime.Now;
+                _db.RefreshTokenTable.Update(CheckIfRefreshTokenExists);
+                var Result = await _db.SaveChangesAsync();
+
+                if (Result == 1)
+                {
+                    return new LoginResponse
+                    {
+                        IsSuccess = true,
+                        Message = $"Token refreshed successfully",
+                        Token = Jwt,
+                        RefreshToken = RefreshToken.RefreshToken
+                    };
+                }
+                else
+                {
+                    return new LoginResponse
+                    {
+                        IsSuccess = false,
+                        Message = $"Unknown error has occurred, please try again",
+                        Token = null,
+                        RefreshToken = null
+                    };
+                }
             }
         }
 
@@ -149,12 +220,30 @@ namespace BankingApi.Shared.Repositories
                 if (CheckUserPassword == true)
                 {
                     var UserRoles  = await _userManager.GetRolesAsync(CheckIfUserEmailExists);
-                    return new LoginResponse
+                    var RefreshTokenObject = GenerateRefreshToken(CheckIfUserEmailExists.Id);
+
+                     await _db.RefreshTokenTable.AddAsync(RefreshTokenObject);
+                    var ResultOfSavingToDb = await _db.SaveChangesAsync();
+                    if (ResultOfSavingToDb == 1)
                     {
-                        IsSuccess = true,
-                        Message = "Login success",
-                        Token = GenereateToken(CheckIfUserEmailExists.Email, CheckIfUserEmailExists.Id,UserRoles)
-                    };
+                        return new LoginResponse
+                        {
+                            IsSuccess = true,
+                            Message = "Login success",
+                            Token = GenereateToken(CheckIfUserEmailExists.Email, CheckIfUserEmailExists.Id, UserRoles),
+                            RefreshToken = RefreshTokenObject.RefreshToken
+                        };
+                    }
+                    else
+                    {
+                        return new LoginResponse
+                        {
+                            IsSuccess = false,
+                            Message = $"Unknown Error has occurred, please try again",
+                            Token = null,
+                        };
+                    }
+                   
                 }
                 else
                 {

@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        source: "/backend/:path*",
+        destination: "http://titanuem.runasp.net/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
