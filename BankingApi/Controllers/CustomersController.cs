@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using BankingApi.Data;
 using BankingApi.Models;
+using BankingApi.Shared.Repositories;
+using BankingApi.Shared.responses;
 using Microsoft.AspNetCore.Mvc;
+using static BankingApi.Shared.DTOs.CustomersDTOs.CustomersDTOs;
 
 namespace BankingApi.Controllers
 {
@@ -14,14 +17,17 @@ namespace BankingApi.Controllers
     {
 
         private readonly ApplicationDbContext _Db;
-        public CustomersController(ApplicationDbContext Db)
+        private readonly ICustomers _customers;
+
+        public CustomersController(ApplicationDbContext Db, ICustomers customers)
         {
             _Db = Db;
+            _customers = customers;
         }
 
 
         [HttpPost("AddNewCustomer")]
-        public ActionResult<string> AddCustomer([FromBody]CostumerModel NewCustomer)
+        public ActionResult<string> AddCustomer([FromBody] CostumerModel NewCustomer)
         {
             if (ModelState.IsValid)
             {
@@ -44,6 +50,12 @@ namespace BankingApi.Controllers
         }
 
 
+        [HttpGet("GetAllCustomers")]
+        public async Task<ActionResult<PaginatedResult<CustomersDTO>>> GetAllCustomers([FromQuery] int Page = 1, [FromQuery] int pageSize = 25)
+        {
+            var ListOfAllCustomers = await _customers.GetAllCustomers(Page,pageSize);
+            return Ok(ListOfAllCustomers);
+        }
 
 
 

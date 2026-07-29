@@ -30,7 +30,8 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .LogTo(Console.WriteLine,LogLevel.Information));
 
 builder.Services.AddIdentityCore<AppUser>(option=>
 {
@@ -49,7 +50,7 @@ builder.Services.AddIdentityCore<AppUser>(option=>
 
 
 builder.Services.AddScoped<IAuth,AuthRepo>();
-
+builder.Services.AddScoped<ICustomers, CustomersRepository>();
 
 
 

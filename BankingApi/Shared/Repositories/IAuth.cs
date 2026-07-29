@@ -178,6 +178,7 @@ namespace BankingApi.Shared.Repositories
 
                 CheckIfRefreshTokenExists.RevokedAt = DateTime.Now;
                 _db.RefreshTokenTable.Update(CheckIfRefreshTokenExists);
+                await _db.RefreshTokenTable.AddAsync(RefreshToken); 
                 var Result = await _db.SaveChangesAsync();
 
                 if (Result == 1)
