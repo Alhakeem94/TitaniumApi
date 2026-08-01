@@ -15,8 +15,8 @@ namespace BankingApi.Data
 
         public DbSet<CostumerModel> CustomersTable { get; set; }
         public DbSet<RefreshTokensModel> RefreshTokenTable { get; set; }
-
-
+        public DbSet<AccountsTypesModel> AccountTypesTable { get; set; }
+        public DbSet<CustomersAccountsModel> CustomersAccountsTable { get; set; }
 
 
     }

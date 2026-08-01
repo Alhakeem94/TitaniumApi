@@ -53,9 +53,59 @@ namespace BankingApi.Controllers
         [HttpGet("GetAllCustomers")]
         public async Task<ActionResult<PaginatedResult<CustomersDTO>>> GetAllCustomers([FromQuery] int Page = 1, [FromQuery] int pageSize = 25)
         {
-            var ListOfAllCustomers = await _customers.GetAllCustomers(Page,pageSize);
+            var ListOfAllCustomers = await _customers.GetAllCustomers(Page, pageSize);
             return Ok(ListOfAllCustomers);
         }
+
+
+        [HttpGet("GetCustomerAccounts")]
+        public async Task<ActionResult<List<CustomersAccountsModel>>> GetCustomerAccounts([FromQuery] int CustomerId)
+        {
+            var CustomerAccounts = await _customers.customersAccountsModel(CustomerId);
+            return Ok(CustomerAccounts);
+        }
+
+
+        [HttpPost("AddAccount")]
+        public async Task<ActionResult<string>> AddAccount([FromBody] AccountsTypesModel NewAccountType)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var Result = await _customers.AddAccount(NewAccountType);
+
+            if (Result == "Account Type Already Exists")
+            {
+                return BadRequest(Result);
+            }
+
+            return Ok(Result);
+        }
+
+
+        [HttpPost("AddCustomerAccount")]
+        public async Task<ActionResult<string>> AddCustomerAccount([FromBody] CustomersAccountsModel NewCustomerAccount)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var Result = await _customers.AddCustomerAccount(NewCustomerAccount);
+
+            if (Result != "Customer Account Added Successfully")
+            {
+                return BadRequest(Result);
+            }
+
+            return Ok(Result);
+        }
+
+
+
+
 
 
 
