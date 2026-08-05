@@ -51,7 +51,7 @@ builder.Services.AddIdentityCore<AppUser>(option=>
 
 builder.Services.AddScoped<IAuth,AuthRepo>();
 builder.Services.AddScoped<ICustomers, CustomersRepository>();
-
+builder.Services.AddScoped<IFilesManager, FilesRepo>();
 
 
 var Secret = builder.Configuration.GetSection("Secrets:jwtSecret").Value;
@@ -100,6 +100,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.MapControllers();

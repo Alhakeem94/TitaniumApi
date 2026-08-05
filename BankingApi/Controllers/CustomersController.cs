@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BankingApi.Data;
 using BankingApi.Models;
 using BankingApi.Shared.Repositories;
+using BankingApi.Shared.requests;
 using BankingApi.Shared.responses;
 using Microsoft.AspNetCore.Mvc;
 using static BankingApi.Shared.DTOs.CustomersDTOs.CustomersDTOs;
@@ -18,24 +19,43 @@ namespace BankingApi.Controllers
 
         private readonly ApplicationDbContext _Db;
         private readonly ICustomers _customers;
+        private readonly IFilesManager _FileManager;
 
-        public CustomersController(ApplicationDbContext Db, ICustomers customers)
+        public CustomersController(ApplicationDbContext Db, ICustomers customers, IFilesManager fileManager)
         {
             _Db = Db;
             _customers = customers;
+            _FileManager = fileManager;
         }
 
 
         [HttpPost("AddNewCustomer")]
-        public ActionResult<string> AddCustomer([FromBody] CostumerModel NewCustomer)
+
+        public async Task<ActionResult<string>> AddCustomer([FromForm] AddNewCustomerRequest NewCustomer)
         {
             if (ModelState.IsValid)
             {
                 var DoesCustomerExist = _Db.CustomersTable.FirstOrDefault(a => a.CustomerNationalId == NewCustomer.CustomerNationalId);
                 if (DoesCustomerExist is null)
                 {
-                    _Db.CustomersTable.Add(NewCustomer);
-                    _Db.SaveChanges();
+                    var UploadedFileResult = await _FileManager.UploadFileAsync($"{DateTime.Now.Year}/{DateTime.Now.Month}/{DateTime.Now.Day}", NewCustomer.CustomerProfileImage);
+                    var CustomerModelObject = new CostumerModel
+                    {
+                        CustomerName = NewCustomer.CustomerName,
+                        CustomerDateOfBirth = NewCustomer.CustomerDateOfBirth,
+                        CustomerNationalId = NewCustomer.CustomerNationalId,
+                        IsMale = NewCustomer.IsMale,
+                        Grade = NewCustomer.Grade,
+                        Notes = NewCustomer.Notes,
+                        CustomerEmail = NewCustomer.CustomerEmail,
+                        CustomerPhoenNumber = NewCustomer.CustomerPhoenNumber,
+                        Adress = NewCustomer.Adress,
+                        CustomerProfileImagePath = UploadedFileResult.SavedFilePath
+                    };
+
+
+                    await _Db.CustomersTable.AddAsync(CustomerModelObject);
+                    await _Db.SaveChangesAsync();
                     return Ok("Customer Added Successfully");
                 }
                 else

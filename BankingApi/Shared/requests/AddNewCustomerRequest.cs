@@ -4,13 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BankingApi.Models
+namespace BankingApi.Shared.requests
 {
-    public class CostumerModel
+    public class AddNewCustomerRequest
     {
-
-        public int Id { get; set; }
-
 
         [Required(ErrorMessage = "Name is a mandatory field")]
         [StringLength(100, ErrorMessage = "Name should be less than 100 characters")]
@@ -37,8 +34,6 @@ namespace BankingApi.Models
         [StringLength(200, ErrorMessage = "Address should be less than 200 characters")]
         public string Adress { get; set; }
 
-        public string? CustomerProfileImagePath { get; set; }
-
-
+        public IFormFile CustomerProfileImage { get; set; }
     }
 }
