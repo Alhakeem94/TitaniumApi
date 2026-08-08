@@ -30,7 +30,7 @@ namespace BankingApi.Controllers
 
 
         [HttpPost("AddNewCustomer")]
-
+        [RequestSizeLimit(5 * 1024 * 1024)]
         public async Task<ActionResult<string>> AddCustomer([FromForm] AddNewCustomerRequest NewCustomer)
         {
             if (ModelState.IsValid)
@@ -39,7 +39,13 @@ namespace BankingApi.Controllers
                 if (DoesCustomerExist is null)
                 {
                     var UploadedFileResult = await _FileManager.UploadFileAsync($"{DateTime.Now.Year}/{DateTime.Now.Month}/{DateTime.Now.Day}", NewCustomer.CustomerProfileImage);
-                    var CustomerModelObject = new CostumerModel
+                    if (UploadedFileResult.IsSaved == false)
+                    {
+                        return BadRequest(UploadedFileResult.StatusMessage);
+                    }
+                    else
+                    {
+                           var CustomerModelObject = new CostumerModel
                     {
                         CustomerName = NewCustomer.CustomerName,
                         CustomerDateOfBirth = NewCustomer.CustomerDateOfBirth,
@@ -57,6 +63,8 @@ namespace BankingApi.Controllers
                     await _Db.CustomersTable.AddAsync(CustomerModelObject);
                     await _Db.SaveChangesAsync();
                     return Ok("Customer Added Successfully");
+                    }
+                 
                 }
                 else
                 {

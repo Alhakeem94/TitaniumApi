@@ -16,12 +16,16 @@ namespace BankingApi.Shared.Repositories
 
     public class FilesRepo : IFilesManager
     {
-        
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FilesRepo(IWebHostEnvironment webHostEnvironment)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IConfiguration _Configuration;
+        private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".pdf", ".docx"];
+
+
+        public FilesRepo(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
         {
             _webHostEnvironment = webHostEnvironment;
+            _Configuration = configuration;
         }
 
 
@@ -38,36 +42,48 @@ namespace BankingApi.Shared.Repositories
                     StatusMessage = "No file uploaded."
                 };
             }
-            {                                          // BankingApi/wwwroot/2026/8/5/981723bads8y19uihedigasty87d
-                var UploadedFilePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath);
-                Directory.CreateDirectory(UploadedFilePath); // Ensure the directory exists
-                Console.WriteLine(UploadedFilePath);
-                var newFileName = Guid.NewGuid().ToString(); 
+            {
 
-                var FullPath = Path.Combine(UploadedFilePath,  newFileName + Path.GetExtension(UploadedFile.FileName));
-                Console.WriteLine(FullPath);
-                await using (var stream = File.Create(FullPath))
-                    await UploadedFile.CopyToAsync(stream);
-
-                return new UploadFileDTO
+                if (AllowedExtensions.Contains(UploadedFile.FileName.ToLower()))
                 {
-                    IsSaved = true,
-                    StatusMessage = "File uploaded successfully.",
-                    SavedFilePath = FullPath,
-                    ContentType = UploadedFile.ContentType,
-                    OriginalName = UploadedFile.FileName,
-                    Size = UploadedFile.Length,
-                    StoredName = newFileName,
-                    UploadedAt = DateTime.Now,
-                };
 
+                    // BankingApi/wwwroot/2026/8/5/981723bads8y19uihedigasty87d
+                    var UploadedFilePath = Path.Combine(_Configuration["Storage:StoragePath"], filePath);
+                    Directory.CreateDirectory(UploadedFilePath); // Ensure the directory exists
+                    Console.WriteLine(UploadedFilePath);
+                    var newFileName = Guid.NewGuid().ToString();
 
+                    var FullPath = Path.Combine(UploadedFilePath, newFileName + Path.GetExtension(UploadedFile.FileName));
+                    Console.WriteLine(FullPath);
+                    await using (var stream = File.Create(FullPath))
+                        await UploadedFile.CopyToAsync(stream);
+
+                    return new UploadFileDTO
+                    {
+                        IsSaved = true,
+                        StatusMessage = "File uploaded successfully.",
+                        SavedFilePath = FullPath,
+                        ContentType = UploadedFile.ContentType,
+                        OriginalName = UploadedFile.FileName,
+                        Size = UploadedFile.Length,
+                        StoredName = newFileName,
+                        UploadedAt = DateTime.Now,
+                    };
+
+                }
+                else
+                {
+                    return new UploadFileDTO
+                    {
+                        IsSaved = false,
+                        StatusMessage = "Invalid file format. Allowed formats are: .jpg, .jpeg, .png, .pdf, .docx"
+                    };
+                }
             }
         }
+
+
+
     }
-
-
-
-
 
 }
