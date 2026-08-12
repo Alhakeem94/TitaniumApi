@@ -52,6 +52,22 @@ builder.Services.AddIdentityCore<AppUser>(option=>
 builder.Services.AddScoped<IAuth,AuthRepo>();
 builder.Services.AddScoped<ICustomers, CustomersRepository>();
 builder.Services.AddScoped<IFilesManager, FilesRepo>();
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 1024 * 1024 * 100; // 100 MB
+    options.ExpirationScanFrequency = TimeSpan.FromSeconds(5); 
+});
+
+builder.Services.AddStackExchangeRedisCache(o =>
+    {
+        o.Configuration = builder.Configuration.GetConnectionString("Redis");
+        o.InstanceName = "redis:";
+    });
+
+
+
+
+
 
 
 var Secret = builder.Configuration.GetSection("Secrets:jwtSecret").Value;

@@ -189,3 +189,6 @@ C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0\BankingApi.staticwebassets.runtime.json
+C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0\Microsoft.Extensions.Caching.StackExchangeRedis.dll
+C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0\Pipelines.Sockets.Unofficial.dll
+C:\Users\Administrator\Desktop\Titanuem API project\BankingApi\bin\Debug\net10.0\StackExchange.Redis.dll

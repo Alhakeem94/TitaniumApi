@@ -48,7 +48,8 @@ namespace BankingApi.Shared.Repositories
             var TotalPages = (int)Math.Ceiling(CostomersCount / (double)MaxPageSize);
 
 
-            var Query = _Db.CustomersTable.OrderBy(a => a.Id).Select(t => new CustomersDTO(t.CustomerName, t.CustomerDateOfBirth,
+            var Query = _Db.CustomersTable.OrderBy(a => a.Id)
+                        .Select(t => new CustomersDTO(t.CustomerName, t.CustomerDateOfBirth,
                              t.CustomerNationalId, t.CustomerEmail, t.CustomerPhoenNumber));
 
             var Items = await Query.Skip((Page - 1) * MaxPageSize).Take(MaxPageSize).ToListAsync();
